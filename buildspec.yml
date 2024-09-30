@@ -13,12 +13,12 @@ phases:
   build:
     commands:
       - echo "Building Flutter Web project"
-      - flutter build web --release
+      - flutter build apk
 
   post_build:
     commands:
       - echo "Uploading New Build Files To Your s3 Bucket"
-      - aws s3 sync ./build/web s3://YOUR-BUCKET-NAME/
+      - aws s3 sync ./build/apk s3://codepipeline-us-east-1-648994628386/
       - echo "Creating CloudFront Cache Invalidation"
       - aws cloudfront create-invalidation --distribution-id YOUR-DISTRIBUTION-ID --paths "/*"
       - echo "Succesfully Deployed"
