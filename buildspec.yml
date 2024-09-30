@@ -4,13 +4,33 @@ phases:
   install:
     commands:
       - echo "Installing dependencies"
-      - git clone https://github.com/flutter/flutter.git -b stable
-      - export PATH="$PATH:`pwd`/flutter/bin"
+      
+      # Remove Java 11
+      - echo "Removing Java 11..."
+      - sudo apt-get remove -y openjdk-11-jdk
+      
+      # Install Java 17
+      - echo "Installing Java 17..."
       - sudo apt-get update
       - sudo apt-get install -y openjdk-17-jdk
-      - update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
-      - update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-      - java -version 
+      
+      # Set Java alternatives
+      - echo "Setting Java alternatives..."
+      - sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
+      - sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+      
+      # Set JAVA_HOME
+      - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      - export PATH=$JAVA_HOME/bin:$PATH
+      
+      # Verify Java installation
+      - java -version
+      
+      # Install Flutter
+      - git clone https://github.com/flutter/flutter.git -b stable
+      - export PATH="$PATH:`pwd`/flutter/bin"
+      
+      # Install Android SDK command line tools
       - wget https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O android-sdk.zip
       - unzip android-sdk.zip -d $HOME/android-sdk
       - export ANDROID_HOME=$HOME/android-sdk
@@ -18,15 +38,18 @@ phases:
       - yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
       - sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-33" "build-tools;33.0.0"
       - echo "Android SDK installed"
+
   build:
     commands:
-      - echo "Building Flutter Web project"
+      - echo "Building Flutter APK"
       - flutter build apk --release
+      - echo "Verifying APK path"
+      - ls -l ./build/app/outputs/flutter-apk/ # Check if APK is built
 
   post_build:
     commands:
-      - echo "Uploading New Build Files To Your s3 Bucket"
+      - echo "Uploading New Build Files To Your S3 Bucket"
       - aws s3 sync ./build/app/outputs/flutter-apk/ s3://codepipeline-us-east-1-648994628386/
       - echo "Creating CloudFront Cache Invalidation"
       - aws cloudfront create-invalidation --distribution-id YOUR-DISTRIBUTION-ID --paths "/*"
-      - echo "Succesfully Deployed"
+      - echo "Successfully Deployed"
