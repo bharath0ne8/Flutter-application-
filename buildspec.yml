@@ -10,7 +10,7 @@ phases:
       - sudo apt-get install -y openjdk-17-jdk
       - update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
       - update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-      - java -version # Verify Java 17 is installed
+      - java -version 
       - wget https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O android-sdk.zip
       - unzip android-sdk.zip -d $HOME/android-sdk
       - export ANDROID_HOME=$HOME/android-sdk
