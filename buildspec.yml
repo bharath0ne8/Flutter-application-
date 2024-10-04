@@ -44,12 +44,12 @@ phases:
       - echo "Building Flutter APK"
       - flutter build apk --release
       - echo "Verifying APK path"
-      - ls -l ./build/app/outputs/flutter-apk/ # Check if APK is built
+      - ls -l ./build/app/outputs/flutter-apk/ 
 
   post_build:
     commands:
-      - echo "Uploading New Build Files To Your S3 Bucket"
-      - aws s3 sync ./build/app/outputs/flutter-apk/ s3://codepipeline-us-east-1-648994628386/
-      - echo "Creating CloudFront Cache Invalidation"
-      - aws cloudfront create-invalidation --distribution-id YOUR-DISTRIBUTION-ID --paths "/*"
-      - echo "Successfully Deployed"
+      - echo Build completed
+artifacts:
+  files:
+    - build/app/outputs/apk/release/*.apk
+  discard-paths: yes
